@@ -3,7 +3,6 @@ package com.rderoovers.minesweeper.service;
 import com.rderoovers.minesweeper.domain.*;
 import javafx.util.Pair;
 import org.springframework.util.Assert;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -86,7 +85,7 @@ public class MinesweeperRestService {
         }
         MinesweeperGame minesweeperGame = games.get(gameId);
         if (minesweeperGame.isFinished()) {
-            throw new InvalidStateException("Game is finished, no further operations are allowed.");
+            throw new IllegalStateException("Game is finished, no further operations are allowed.");
         }
         int index = minesweeperGameUpdate.getSquare();
         minesweeperGame.selectSquare(index);

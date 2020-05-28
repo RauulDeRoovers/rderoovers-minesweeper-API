@@ -5,7 +5,6 @@ import com.rderoovers.minesweeper.service.MinesweeperRestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sun.plugin.dom.exception.InvalidStateException;
 
 @CrossOrigin(origins = "*")
 @RestController()
@@ -62,7 +61,7 @@ public class MinesweeperRestController {
             minesweeperGameDTO = minesweeperRestService.updateGame(minesweeperGameUpdate);
             httpStatus = HttpStatus.OK;
         }
-        catch (InvalidStateException ise) {
+        catch (IllegalStateException ise) {
             httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         }
         catch (IndexOutOfBoundsException iobe) {
