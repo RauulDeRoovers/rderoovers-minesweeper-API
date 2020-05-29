@@ -12,14 +12,6 @@ public class MinesweeperRestService {
     private final AtomicLong counter = new AtomicLong();
     private final Map<Long, MinesweeperGame> games = new HashMap<>();
 
-    // TODO: use indexes instead of Pair
-    // 3x3:
-    // 7 => row ? 7 / 3 = 2 | col ? 7 - (3 * 2) = 1 => (2,1) where only col count is used
-    // 3x4:
-    // 3 => row ? 3 / 4 = 0 | col ? 3 - (4 * 0) = 3 => (0,3)
-    // 10 => row ? 10 / 4 = 2 | col ? 10 - (4 * 2) = 2 => (2,2)
-    // 4x2:
-    // 5 => row ? 5 / 2 = 2 | col ? 5 - (2 * 2) = 1 => (2,1)
     private List<Pair<Integer, Integer>> calculateNeighborsPositions(MinesweeperSquare square, GameSettings gameSettings) {
         List<Pair<Integer, Integer>> neighborsPositions = new ArrayList<>();
         int row = square.getRow();

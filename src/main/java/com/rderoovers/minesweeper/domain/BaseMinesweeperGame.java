@@ -2,7 +2,6 @@ package com.rderoovers.minesweeper.domain;
 
 public class BaseMinesweeperGame {
 
-    // TODO: how to ensure victory is not set more than once?
     private boolean victory;
     private boolean finished;
     private final int rowCount;
@@ -35,18 +34,6 @@ public class BaseMinesweeperGame {
 
     public long getId() {
         return id;
-    }
-
-    public void finish() {
-        this.finished = true;
-    }
-
-    private void won() {
-        this.victory = true;
-    }
-
-    private void lost() {
-        this.victory = false;
     }
 
 }

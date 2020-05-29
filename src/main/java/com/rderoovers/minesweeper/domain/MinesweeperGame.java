@@ -65,9 +65,6 @@ public class MinesweeperGame {
         if (index > this.flatSquares.size()) {
             throw new IndexOutOfBoundsException();
         }
-        // find square
-        //int rowIndex = Math.floorDiv(index, this.rowCount);
-        //int colIndex = index % this.columnCount;
         MinesweeperSquare square = this.flatSquares.get(index);
         if (square.isFlagged()) {
             return;
@@ -111,6 +108,9 @@ public class MinesweeperGame {
     }
 
     private void setResult(boolean victory) {
+        if (this.finished) {
+            throw new IllegalStateException("Game is finished, no further operations are allowed.");
+        }
         this.victory = victory;
         this.finished = true;
         this.flatSquares.stream().filter(MinesweeperSquare::isMined).forEach(MinesweeperSquare::reveal);
