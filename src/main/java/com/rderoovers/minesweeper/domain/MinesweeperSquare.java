@@ -7,14 +7,13 @@ import java.util.List;
 
 public class MinesweeperSquare {
 
-
-
     private final List<Pair<Integer, Integer>> neighborsPositions;
     private final int index;
     private final int row;
     private final int col;
     private boolean mined;
     private boolean revealed;
+    private boolean flagged;
     private long minedNeighbors;
 
     public MinesweeperSquare(int index, int row, int col, boolean mined) {
@@ -33,12 +32,13 @@ public class MinesweeperSquare {
         return mined;
     }
 
-    public void doesHoldMine() {
+    public void mine() {
         this.mined = true;
     }
 
     public void reveal() {
         this.revealed = true;
+        this.flagged = false;
     }
 
     public boolean isRevealed() {
@@ -69,4 +69,17 @@ public class MinesweeperSquare {
     public long getMinedNeighbors() {
         return minedNeighbors;
     }
+
+    public boolean isFlagged() {
+        return flagged;
+    }
+
+    public void flag() {
+        flagged = true;
+    }
+
+    public void unflag() {
+        flagged = false;
+    }
+
 }

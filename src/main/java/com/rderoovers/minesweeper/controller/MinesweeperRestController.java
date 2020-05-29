@@ -1,6 +1,8 @@
 package com.rderoovers.minesweeper.controller;
 
-import com.rderoovers.minesweeper.domain.*;
+import com.rderoovers.minesweeper.domain.GameSettings;
+import com.rderoovers.minesweeper.domain.MinesweeperGameDTO;
+import com.rderoovers.minesweeper.domain.MinesweeperGameUpdate;
 import com.rderoovers.minesweeper.service.MinesweeperRestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +29,10 @@ public class MinesweeperRestController {
     *   rowCount: the amount of rows requested
     *   columnCount: the amount of columns requested
     *   id: the game's id for further reference, should be used every time the game's status changes (a cell is clicked)
+    * Response Statuses:
+    *  HttpStatus.OK: if game was successfully created.
+    *  HttpStatus.BAD_REQUEST: invalid number of rows, columns or mines (includes checking at least 1 square is empty).
     * */
-    // TODO: param validations and error documentation
     @PostMapping("/create")
     public ResponseEntity<MinesweeperGameDTO> create(@RequestBody GameSettings gameSettings) {
         HttpStatus httpStatus;
@@ -51,8 +55,11 @@ public class MinesweeperRestController {
     *       index: (int: selected cell's index)
     *   }
     * Returns the modified game instance with updated flags.
+    * Response Statuses:
+    *  HttpStatus.OK: if game was successfully updated.
+    *  HttpStatus.METHOD_NOT_ALLOWED: if the game has already finished.
+    *  HttpStatus.BAD_REQUEST: if id or index provided to identify either game or square are wrong.
     * */
-    // TODO: param validations and error documentation
     @PatchMapping("/update")
     public ResponseEntity<MinesweeperGameDTO> update(@RequestBody MinesweeperGameUpdate minesweeperGameUpdate) {
         HttpStatus httpStatus;
@@ -64,7 +71,40 @@ public class MinesweeperRestController {
         catch (IllegalStateException ise) {
             httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         }
-        catch (IndexOutOfBoundsException iobe) {
+        catch (IllegalArgumentException | IndexOutOfBoundsException iae) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(minesweeperGameDTO, httpStatus);
+    }
+
+    /*
+     * Receives the game id for the game that has suffered a change (cell flagged) and an index specifying which cell was flagged.
+     * Request format:
+     *   {
+     *       id: (long: game's id),
+     *       index: (int: flagged cell's index)
+     *   }
+     * If cell is already revealed, nothing is changed.
+     * If cell has not been revealed, it is flagged, further clicks are ignored.
+     *  Cell can be unflagged (by player) or revealed if holds no mine and a neighbor with no mine was revealed.
+     * Returns the modified game instance with updated flags.
+     * Response Statuses:
+     *  HttpStatus.OK: if square flagging was successful or no action was needed.
+     *  HttpStatus.METHOD_NOT_ALLOWED: if the game has already finished.
+     *  HttpStatus.BAD_REQUEST: if id or index provided to identify either game or square are wrong.
+     * */
+    @PatchMapping("/flag")
+    public ResponseEntity<MinesweeperGameDTO> flag(@RequestBody MinesweeperGameUpdate minesweeperGameUpdate) {
+        HttpStatus httpStatus;
+        MinesweeperGameDTO minesweeperGameDTO = null;
+        try {
+            minesweeperGameDTO = minesweeperRestService.flagSquare(minesweeperGameUpdate);
+            httpStatus = HttpStatus.OK;
+        }
+        catch (IllegalStateException ise) {
+            httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
+        }
+        catch (IllegalArgumentException | IndexOutOfBoundsException iae) {
             httpStatus = HttpStatus.BAD_REQUEST;
         }
         return new ResponseEntity<>(minesweeperGameDTO, httpStatus);

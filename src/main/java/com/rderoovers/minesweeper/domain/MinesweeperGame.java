@@ -69,6 +69,9 @@ public class MinesweeperGame {
         //int rowIndex = Math.floorDiv(index, this.rowCount);
         //int colIndex = index % this.columnCount;
         MinesweeperSquare square = this.flatSquares.get(index);
+        if (square.isFlagged()) {
+            return;
+        }
         if (square.isMined()) {
             this.setResult(false);
             return;
@@ -110,7 +113,7 @@ public class MinesweeperGame {
     private void setResult(boolean victory) {
         this.victory = victory;
         this.finished = true;
-        this.flatSquares.forEach(MinesweeperSquare::reveal);
+        this.flatSquares.stream().filter(MinesweeperSquare::isMined).forEach(MinesweeperSquare::reveal);
     }
 
     public boolean isVictory() {
@@ -119,5 +122,21 @@ public class MinesweeperGame {
 
     public boolean isFinished() {
         return finished;
+    }
+
+    public void flagSquare(int index) throws IndexOutOfBoundsException{
+        if (index > this.flatSquares.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        MinesweeperSquare square = this.flatSquares.get(index);
+        if (square.isRevealed()) {
+            return;
+        }
+        if (square.isFlagged()) {
+            square.unflag();
+        }
+        else {
+            square.flag();
+        }
     }
 }

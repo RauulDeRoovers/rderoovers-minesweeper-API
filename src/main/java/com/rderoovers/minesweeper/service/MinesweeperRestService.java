@@ -42,11 +42,30 @@ public class MinesweeperRestService {
         return neighborsPositions;
     }
 
+    private MinesweeperGameDTO createMinesweeperGameDTO(MinesweeperGame minesweeperGame) {
+        int rowCount = minesweeperGame.getRowCount();
+        int colCount = minesweeperGame.getColumnCount();
+        MinesweeperSquareDTO[][] squares = new MinesweeperSquareDTO[rowCount][colCount];
+        for (int row = 0; row < rowCount; row++) {
+            MinesweeperSquare[] rowSquares = minesweeperGame.getSquares()[row];
+            for (int col = 0; col < colCount; col++) {
+                MinesweeperSquare square = rowSquares[col];
+                long index = square.getIndex();
+                squares[row][col] = square.isFlagged() ?
+                        new MinesweeperSquareFlagged(index) : !square.isRevealed() ?
+                        new MinesweeperSquareUnknown(index) : square.isMined() ?
+                        new MinesweeperSquareMine(index) :
+                        new MinesweeperSquareSafe(index, square.getMinedNeighbors());
+            }
+        }
+        return new MinesweeperGameDTO(minesweeperGame.getId(), rowCount, colCount, minesweeperGame.isFinished(), minesweeperGame.isVictory(), squares);
+    }
+
     public MinesweeperGameDTO createGame(GameSettings gameSettings) throws IllegalArgumentException {
-        Assert.isTrue(gameSettings.getRowCount() > 0, "Invalid number of rows.");
-        Assert.isTrue(gameSettings.getColumnCount() > 0, "Invalid number of columns.");
-        Assert.isTrue(gameSettings.getMineCount() > 0, "Invalid number of mines.");
-        Assert.isTrue(gameSettings.getMineCount() < (gameSettings.getRowCount() * gameSettings.getColumnCount()), "Too many mines.");
+        if (gameSettings.getRowCount() < 0) throw new IllegalArgumentException("Invalid number of rows.");
+        if (gameSettings.getColumnCount() < 0) throw new IllegalArgumentException("Invalid number of columns.");
+        if (gameSettings.getMineCount() < 1) throw new IllegalArgumentException("Invalid number of mines.");
+        if (!((gameSettings.getRowCount() * gameSettings.getColumnCount()) > gameSettings.getMineCount())) throw new IllegalArgumentException("Too many mines.");
 
         MinesweeperSquare[][] squares = new MinesweeperSquare[gameSettings.getRowCount()][gameSettings.getColumnCount()];
         int index = 0;
@@ -67,18 +86,17 @@ public class MinesweeperRestService {
                 continue;
             }
 
-            squares[randomInteger][randomInteger2].doesHoldMine();
+            squares[randomInteger][randomInteger2].mine();
             minesSet++;
         }
 
         long id = counter.incrementAndGet();
         MinesweeperGame minesweeperGame = new MinesweeperGame(id, gameSettings.getRowCount(), gameSettings.getColumnCount(), gameSettings.getMineCount(), squares);
         games.put(id, minesweeperGame);
-        //TODO: weird
-        return new MinesweeperGameDTO(minesweeperGame);
+        return this.createMinesweeperGameDTO(minesweeperGame);
     }
 
-    public MinesweeperGameDTO updateGame(MinesweeperGameUpdate minesweeperGameUpdate) {
+    public MinesweeperGameDTO updateGame(MinesweeperGameUpdate minesweeperGameUpdate) throws IllegalArgumentException {
         long gameId = minesweeperGameUpdate.getId();
         if (!games.containsKey(gameId)) {
             throw new IllegalArgumentException();
@@ -89,7 +107,20 @@ public class MinesweeperRestService {
         }
         int index = minesweeperGameUpdate.getSquare();
         minesweeperGame.selectSquare(index);
-        //TODO: weird
-        return new MinesweeperGameDTO(minesweeperGame);
+        return this.createMinesweeperGameDTO(minesweeperGame);
+    }
+
+    public MinesweeperGameDTO flagSquare(MinesweeperGameUpdate minesweeperGameUpdate) {
+        long gameId = minesweeperGameUpdate.getId();
+        if (!games.containsKey(gameId)) {
+            throw new IllegalArgumentException();
+        }
+        MinesweeperGame minesweeperGame = games.get(gameId);
+        if (minesweeperGame.isFinished()) {
+            throw new IllegalStateException("Game is finished, no further operations are allowed.");
+        }
+        int index = minesweeperGameUpdate.getSquare();
+        minesweeperGame.flagSquare(index);
+        return this.createMinesweeperGameDTO(minesweeperGame);
     }
 }
