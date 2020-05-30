@@ -7,25 +7,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MinesweeperGame {
+public class MinesweeperGame extends MinesweeperGameDBO {
 
-    private boolean victory;
-    private boolean finished;
-    private final long id;
-    private final int rowCount;
-    private final int columnCount;
-    private final int mineCount;
-    private final MinesweeperSquare[][] squares;
     private final List<MinesweeperSquare> flatSquares;
 
-    public MinesweeperGame(long id, int rowCount, int columnCount, int mineCount, MinesweeperSquare[][] squares) {
-        this.id = id;
-        this.rowCount = rowCount;
-        this.columnCount = columnCount;
-        this.mineCount = mineCount;
-        this.squares = squares;
+    public MinesweeperGame(MinesweeperGameDBO minesweeperGameDBO) {
+        this.setId(minesweeperGameDBO.getId());
+        this.setRowCount(minesweeperGameDBO.getRowCount());
+        this.setColumnCount(minesweeperGameDBO.getColumnCount());
+        this.setFinished(minesweeperGameDBO.isFinished());
+        this.setVictory(minesweeperGameDBO.isVictory());
+        this.setMineCount(minesweeperGameDBO.getMineCount());
+        this.setSquares(minesweeperGameDBO.getSquares());
         this.flatSquares = new ArrayList<>();
-        for (MinesweeperSquare[] row : squares) {
+        for (MinesweeperSquare[] row : this.getSquares()) {
             flatSquares.addAll(Arrays.asList(row));
         }
         this.flatSquares.forEach(this::updateSquareNeighborsMines);
@@ -33,32 +28,12 @@ public class MinesweeperGame {
 
     private void updateSquareNeighborsMines(MinesweeperSquare minesweeperSquare) {
         List<MinesweeperSquare> neighbors = new ArrayList<>();
-        for (Pair<Integer, Integer> position : minesweeperSquare.getNeighborsPositions()) {
-            int neighborIndex = (position.getKey() * this.columnCount) + position.getValue();
-            neighbors.add(this.flatSquares.get(neighborIndex));
+        for (Integer position : minesweeperSquare.getNeighborsPositions()) {
+            //int neighborIndex = (position.getKey() * this.getColumnCount()) + position.getValue();
+            neighbors.add(this.flatSquares.get(position));
         }
         long mineNeighbors = neighbors.stream().filter(MinesweeperSquare::isMined).count();
         minesweeperSquare.setNeighborMineCount(mineNeighbors);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public int getRowCount() {
-        return rowCount;
-    }
-
-    public int getColumnCount() {
-        return columnCount;
-    }
-
-    public int getMineCount() {
-        return mineCount;
-    }
-
-    public MinesweeperSquare[][] getSquares() {
-        return squares;
     }
 
     public void selectSquare(int index) throws IndexOutOfBoundsException {
@@ -79,7 +54,7 @@ public class MinesweeperGame {
         if (neighbors.stream().noneMatch(MinesweeperSquare::isMined)) {
             this.revealNeighbors(neighbors);
         }
-        if (this.flatSquares.stream().filter(MinesweeperSquare::isRevealed).count() == (this.rowCount * this.columnCount) - this.mineCount) {
+        if (this.flatSquares.stream().filter(MinesweeperSquare::isRevealed).count() == (this.getRowCount() * this.getColumnCount()) - this.getMineCount()) {
             this.setResult(true);
         }
     }
@@ -91,9 +66,8 @@ public class MinesweeperGame {
 
     private List<MinesweeperSquare> getSquareNeighbors(MinesweeperSquare square) {
         List<MinesweeperSquare> neighbors = new ArrayList<>();
-        for (Pair<Integer, Integer> position : square.getNeighborsPositions()) {
-            int neighborIndex = (position.getKey() * this.columnCount) + position.getValue();
-            neighbors.add(this.flatSquares.get(neighborIndex));
+        for (Integer position : square.getNeighborsPositions()) {
+            neighbors.add(this.flatSquares.get(position));
         }
         return neighbors;
     }
@@ -108,22 +82,13 @@ public class MinesweeperGame {
     }
 
     private void setResult(boolean victory) {
-        if (this.finished) {
+        if (this.isFinished()) {
             throw new IllegalStateException("Game is finished, no further operations are allowed.");
         }
-        this.victory = victory;
-        this.finished = true;
+        this.setVictory(victory);
+        this.setFinished(true);
         this.flatSquares.stream().filter(MinesweeperSquare::isMined).forEach(MinesweeperSquare::reveal);
     }
-
-    public boolean isVictory() {
-        return victory;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
     public void flagSquare(int index) throws IndexOutOfBoundsException{
         if (index > this.flatSquares.size()) {
             throw new IndexOutOfBoundsException();
@@ -139,4 +104,5 @@ public class MinesweeperGame {
             square.flag();
         }
     }
+
 }

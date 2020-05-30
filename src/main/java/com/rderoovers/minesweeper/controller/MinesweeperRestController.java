@@ -1,5 +1,6 @@
 package com.rderoovers.minesweeper.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rderoovers.minesweeper.domain.GameSettings;
 import com.rderoovers.minesweeper.domain.MinesweeperGameDTO;
 import com.rderoovers.minesweeper.domain.MinesweeperGameUpdate;
@@ -7,6 +8,9 @@ import com.rderoovers.minesweeper.service.MinesweeperRestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URISyntaxException;
+import java.sql.SQLException;
 
 @CrossOrigin(origins = "*")
 @RestController()
@@ -73,6 +77,9 @@ public class MinesweeperRestController {
         }
         catch (IllegalArgumentException | IndexOutOfBoundsException iae) {
             httpStatus = HttpStatus.BAD_REQUEST;
+        } catch (JsonProcessingException | SQLException | URISyntaxException e) {
+            e.printStackTrace();
+            httpStatus = HttpStatus.BAD_REQUEST;
         }
         return new ResponseEntity<>(minesweeperGameDTO, httpStatus);
     }
@@ -102,9 +109,11 @@ public class MinesweeperRestController {
             httpStatus = HttpStatus.OK;
         }
         catch (IllegalStateException ise) {
+            ise.printStackTrace();
             httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         }
-        catch (IllegalArgumentException | IndexOutOfBoundsException iae) {
+        catch (IllegalArgumentException | IndexOutOfBoundsException | JsonProcessingException | SQLException | URISyntaxException iae) {
+            iae.printStackTrace();
             httpStatus = HttpStatus.BAD_REQUEST;
         }
         return new ResponseEntity<>(minesweeperGameDTO, httpStatus);
