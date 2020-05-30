@@ -3,7 +3,6 @@ package com.rderoovers.minesweeper.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rderoovers.minesweeper.database.MinesweeperDAO;
 import com.rderoovers.minesweeper.domain.*;
-import com.sun.xml.internal.bind.v2.util.CollisionCheckStack;
 import javafx.util.Pair;
 
 import java.net.URISyntaxException;
