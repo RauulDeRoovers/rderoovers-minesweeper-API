@@ -38,6 +38,14 @@ var minesweeperService = function($http) {
 		deleteGame: function(id) {
 			//return $http.delete('http://localhost:8080/delete?id=' + id);
 			return $http.delete('https://minesweeper-rest-service.herokuapp.com/delete?id=' + id);
+		},
+		signIn: function(user) {
+			let data = JSON.stringify({
+				user: user.user,
+				password: user.password
+			});
+			//return $http.post('http://localhost:8080/signin', data);
+			return $http.delete('https://minesweeper-rest-service.herokuapp.com/signin', data);
 		}
 	}
 };
