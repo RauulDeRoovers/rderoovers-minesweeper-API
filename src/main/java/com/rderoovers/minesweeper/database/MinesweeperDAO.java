@@ -6,18 +6,28 @@ import com.rderoovers.minesweeper.domain.MinesweeperGameDBO;
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinesweeperDAO {
 
+    private static Connection getConnection() throws SQLException {
+        String url = "jdbc:postgresql://ec2-18-210-214-86.compute-1.amazonaws.com:5432/df07oro9fp521j?user=lwlxavyzarlohc&password=377f80cec2979296388b29b9cc3d612bb3de07b40b0bec58c51bf6e9b8947318&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory";
+        return DriverManager.getConnection(url);
+    }
+
     private String createJSON(MinesweeperGameDBO minesweeperGameDBO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(minesweeperGameDBO);
-        return json;
+        return mapper.writeValueAsString(minesweeperGameDBO);
+    }
+
+    private MinesweeperGameDBO createMinesweeperGameDBO(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, MinesweeperGameDBO.class);
     }
 
     private MinesweeperGameDBO createMinesweeperGameDBO(String json, long gameId) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        MinesweeperGameDBO minesweeperGameDBO = mapper.readValue(json, MinesweeperGameDBO.class);
+        MinesweeperGameDBO minesweeperGameDBO = this.createMinesweeperGameDBO(json);
         minesweeperGameDBO.setId(gameId);
         return minesweeperGameDBO;
     }
@@ -28,9 +38,9 @@ public class MinesweeperDAO {
         String json = this.createJSON(minesweeperGameDBO);
         preparedStatement.setString(1, json);
         preparedStatement.setInt(2, 1);
-        Date createdDate = new Date(System.currentTimeMillis());
-        preparedStatement.setDate(3, createdDate);
-        preparedStatement.setDate(4, createdDate);
+        Timestamp createdDate = new Timestamp(System.currentTimeMillis());
+        preparedStatement.setTimestamp(3, createdDate);
+        preparedStatement.setTimestamp(4, createdDate);
         ResultSet rs = preparedStatement.executeQuery();
         try {
             rs.next();
@@ -48,8 +58,8 @@ public class MinesweeperDAO {
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE GAME SET game_body = ?, modified_datetime = ? WHERE game_id = ?");
         String json = this.createJSON(minesweeperGameDBO);
         preparedStatement.setString(1, json);
-        Date createdDate = new Date(System.currentTimeMillis());
-        preparedStatement.setDate(2, createdDate);
+        Timestamp createdDate = new Timestamp(System.currentTimeMillis());
+        preparedStatement.setTimestamp(2, createdDate);
         preparedStatement.setLong(3, minesweeperGameDBO.getId());
         int affectedRecords = preparedStatement.executeUpdate();
         if (affectedRecords != 1) {
@@ -67,11 +77,6 @@ public class MinesweeperDAO {
         }
     }
 
-    private static Connection getConnection() throws SQLException {
-        String url = "jdbc:postgresql://ec2-18-210-214-86.compute-1.amazonaws.com:5432/df07oro9fp521j?user=lwlxavyzarlohc&password=377f80cec2979296388b29b9cc3d612bb3de07b40b0bec58c51bf6e9b8947318&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory";
-        return DriverManager.getConnection(url);
-    }
-
     public MinesweeperGameDBO loadGame(long gameId) throws SQLException, JsonProcessingException {
         Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT game_body, user_id FROM game WHERE game_id = ?");
@@ -80,8 +85,43 @@ public class MinesweeperDAO {
         resultSet.next();
         String json = resultSet.getString(1);
         connection.close();
-        MinesweeperGameDBO minesweeperGameDBO = this.createMinesweeperGameDBO(json, gameId);
-        return minesweeperGameDBO;
+        return this.createMinesweeperGameDBO(json, gameId);
     }
 
+    /*
+    private ResultSet executeQuery(String query, Consumer<PreparedStatement> preparedStatementFiller) throws SQLException {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatementFiller.accept(preparedStatement);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
+        resultSet.get(1);
+        connection.close();
+    }
+    */
+
+    public List<MinesweeperGameDBO> loadAllGames() throws SQLException, JsonProcessingException {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT game_id, game_body, user_id FROM game");
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<MinesweeperGameDBO> minesweeperGameDBOList = new ArrayList<>();
+        while (resultSet.next()) {
+            long gameId = resultSet.getLong(1);
+            String json = resultSet.getString(2);
+            MinesweeperGameDBO minesweeperGameDBO = this.createMinesweeperGameDBO(json);
+            minesweeperGameDBO.setId(gameId);
+            minesweeperGameDBOList.add(minesweeperGameDBO);
+        }
+        connection.close();
+        return minesweeperGameDBOList;
+    }
+
+    public boolean deleteGame(long gameId) throws SQLException {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM game WHERE game_id = ?");
+        preparedStatement.setLong(1, gameId);
+        int affectedRecords = preparedStatement.executeUpdate();
+        connection.close();
+        return affectedRecords == 1;
+    }
 }

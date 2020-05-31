@@ -19,6 +19,7 @@ public class MinesweeperGame extends MinesweeperGameDBO {
         this.setVictory(minesweeperGameDBO.isVictory());
         this.setMineCount(minesweeperGameDBO.getMineCount());
         this.setSquares(minesweeperGameDBO.getSquares());
+        this.setPlayTime(minesweeperGameDBO.getPlayTime());
         this.flatSquares = new ArrayList<>();
         for (MinesweeperSquare[] row : this.getSquares()) {
             flatSquares.addAll(Arrays.asList(row));

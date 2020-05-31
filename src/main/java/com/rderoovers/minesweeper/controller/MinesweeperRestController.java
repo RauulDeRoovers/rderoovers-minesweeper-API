@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController()
@@ -118,4 +121,41 @@ public class MinesweeperRestController {
         }
         return new ResponseEntity<>(minesweeperGameDTO, httpStatus);
     }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<MinesweeperGameDTO>> get(@RequestParam(name = "id", required = false) Long id) {
+        HttpStatus httpStatus;
+        List<MinesweeperGameDTO> minesweeperGameDTOList = new ArrayList<>();
+        try {
+            if (id == null) {
+                minesweeperGameDTOList = minesweeperRestService.loadAllGames();
+            }
+            else {
+                MinesweeperGameDTO minesweeperGameDTO = minesweeperRestService.loadGame(id);
+                minesweeperGameDTOList.add(minesweeperGameDTO);
+            }
+            httpStatus = HttpStatus.OK;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(minesweeperGameDTOList, httpStatus);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Boolean> delete(@RequestParam(name = "id") Long id) {
+        HttpStatus httpStatus;
+        Boolean success = false;
+        try {
+            success = minesweeperRestService.deleteGame(id);
+            httpStatus = success ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(success, httpStatus);
+    }
+
 }

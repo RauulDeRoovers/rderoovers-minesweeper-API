@@ -6,7 +6,9 @@ public class BaseMinesweeperGame {
     private boolean finished;
     private int rowCount;
     private int columnCount;
+    private int mineCount;
     private long id;
+    private long playTime;
 
     public boolean isVictory() {
         return victory;
@@ -48,16 +50,34 @@ public class BaseMinesweeperGame {
         this.id = id;
     }
 
+    public int getMineCount() {
+        return mineCount;
+    }
+
+    public long getPlayTime() {
+        return playTime;
+    }
+
+    public void setPlayTime(long playTime) {
+        this.playTime = playTime;
+    }
+
+    public void setMineCount(int mineCount) {
+        this.mineCount = mineCount;
+    }
+
     public BaseMinesweeperGame() {
 
     }
 
-    public BaseMinesweeperGame(long id, int rowCount, int columnCount, boolean finished, boolean victory) {
+    public BaseMinesweeperGame(long id, int rowCount, int columnCount, int mineCount, long playTime, boolean finished, boolean victory) {
         this.id = id;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.finished = finished;
         this.victory = victory;
+        this.mineCount = mineCount;
+        this.playTime = playTime;
     }
 
 }

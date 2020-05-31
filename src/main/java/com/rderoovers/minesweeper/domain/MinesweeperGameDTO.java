@@ -16,8 +16,8 @@ public class MinesweeperGameDTO extends BaseMinesweeperGame {
 
     }
 
-    public MinesweeperGameDTO(long id, int rowCount, int columnCount, boolean finished, boolean victory, MinesweeperSquareDTO[][] squares) {
-        super(id, rowCount, columnCount, finished, victory);
+    public MinesweeperGameDTO(long id, int rowCount, int columnCount, int mineCount, long playTime, boolean finished, boolean victory, MinesweeperSquareDTO[][] squares) {
+        super(id, rowCount, columnCount, mineCount, playTime, finished, victory);
         this.squares = squares;
     }
 

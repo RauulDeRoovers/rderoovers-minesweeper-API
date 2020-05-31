@@ -56,7 +56,7 @@ public class MinesweeperRestService {
                         new MinesweeperSquareSafe(index, square.getMinedNeighbors());
             }
         }
-        return new MinesweeperGameDTO(minesweeperGameDBO.getId(), rowCount, colCount, minesweeperGameDBO.isFinished(), minesweeperGameDBO.isVictory(), squares);
+        return new MinesweeperGameDTO(minesweeperGameDBO.getId(), rowCount, colCount, minesweeperGameDBO.getMineCount(), minesweeperGameDBO.getPlayTime(), minesweeperGameDBO.isFinished(), minesweeperGameDBO.isVictory(), squares);
     }
 
     private void createMines(MinesweeperSquare[][] squares, int rowCount, int columnCount, int mineCount) {
@@ -71,6 +71,21 @@ public class MinesweeperRestService {
             squares[randomInteger][randomInteger2].mine();
             minesSet++;
         }
+    }
+
+    private MinesweeperSquare[][] createSquares(GameSettings gameSettings) {
+        MinesweeperSquare[][] squares = new MinesweeperSquare[gameSettings.getRowCount()][gameSettings.getColumnCount()];
+        int index = 0;
+        for (int row = 0; row < gameSettings.getRowCount(); row++) {
+            for (int col = 0; col < gameSettings.getColumnCount(); col++) {
+                MinesweeperSquare square = new MinesweeperSquare(index, row, col, false);
+                squares[row][col] = square;
+                List<Integer> neighborsPositions = calculateNeighborsPositions(square, gameSettings);
+                square.setNeighborsPositions(neighborsPositions);
+                index++;
+            }
+        }
+        return squares;
     }
 
     public MinesweeperGameDTO createGame(GameSettings gameSettings) throws IllegalArgumentException {
@@ -95,21 +110,6 @@ public class MinesweeperRestService {
         return this.createMinesweeperGameDTO(minesweeperGameDBO);
     }
 
-    private MinesweeperSquare[][] createSquares(GameSettings gameSettings) {
-        MinesweeperSquare[][] squares = new MinesweeperSquare[gameSettings.getRowCount()][gameSettings.getColumnCount()];
-        int index = 0;
-        for (int row = 0; row < gameSettings.getRowCount(); row++) {
-            for (int col = 0; col < gameSettings.getColumnCount(); col++) {
-                MinesweeperSquare square = new MinesweeperSquare(index, row, col, false);
-                squares[row][col] = square;
-                List<Integer> neighborsPositions = calculateNeighborsPositions(square, gameSettings);
-                square.setNeighborsPositions(neighborsPositions);
-                index++;
-            }
-        }
-        return squares;
-    }
-
     public MinesweeperGameDTO updateGame(MinesweeperGameUpdate minesweeperGameUpdate) throws IllegalArgumentException, JsonProcessingException, SQLException, URISyntaxException {
         long gameId = minesweeperGameUpdate.getId();
         MinesweeperGameDBO minesweeperGameDBO;
@@ -123,10 +123,11 @@ public class MinesweeperRestService {
         if (minesweeperGameDBO.isFinished()) {
             throw new IllegalStateException("Game is finished, no further operations are allowed.");
         }
+        minesweeperGameDBO.setPlayTime(minesweeperGameUpdate.getTime());
         int index = minesweeperGameUpdate.getSquare();
         MinesweeperGame minesweeperGame = new MinesweeperGame(minesweeperGameDBO);
         minesweeperGame.selectSquare(index);
-        minesweeperDAO.saveGame(minesweeperGameDBO);
+        minesweeperDAO.saveGame(minesweeperGame);
         return this.createMinesweeperGameDTO(minesweeperGame);
     }
 
@@ -146,7 +147,19 @@ public class MinesweeperRestService {
         int index = minesweeperGameUpdate.getSquare();
         MinesweeperGame minesweeperGame = new MinesweeperGame(minesweeperGameDBO);
         minesweeperGame.flagSquare(index);
-        minesweeperDAO.saveGame(minesweeperGameDBO);
+        minesweeperDAO.saveGame(minesweeperGame);
         return this.createMinesweeperGameDTO(minesweeperGame);
+    }
+
+    public List<MinesweeperGameDTO> loadAllGames() throws SQLException, JsonProcessingException {
+        return minesweeperDAO.loadAllGames().stream().map(this::createMinesweeperGameDTO).collect(Collectors.toList());
+    }
+
+    public MinesweeperGameDTO loadGame(Long id) throws SQLException, JsonProcessingException {
+        return this.createMinesweeperGameDTO(minesweeperDAO.loadGame(id));
+    }
+
+    public boolean deleteGame(Long id) throws SQLException {
+        return minesweeperDAO.deleteGame(id);
     }
 }
