@@ -1,8 +1,9 @@
 package com.rderoovers.minesweeper.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.rderoovers.minesweeper.domain.GameSettings;
+import com.rderoovers.minesweeper.domain.MinesweeperGameSettings;
 import com.rderoovers.minesweeper.domain.MinesweeperGameDTO;
+import com.rderoovers.minesweeper.domain.MinesweeperGameLogin;
 import com.rderoovers.minesweeper.domain.MinesweeperGameUpdate;
 import com.rderoovers.minesweeper.service.MinesweeperRestService;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class MinesweeperRestController {
     *  HttpStatus.BAD_REQUEST: invalid number of rows, columns or mines (includes checking at least 1 square is empty).
     * */
     @PostMapping("/create")
-    public ResponseEntity<MinesweeperGameDTO> create(@RequestBody GameSettings gameSettings) {
+    public ResponseEntity<MinesweeperGameDTO> create(@RequestBody MinesweeperGameSettings gameSettings) {
         HttpStatus httpStatus;
         MinesweeperGameDTO minesweeperGameDTO = null;
         try {
@@ -153,6 +153,24 @@ public class MinesweeperRestController {
         }
         catch (Exception e) {
             e.printStackTrace();
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(success, httpStatus);
+    }
+
+    /*
+    * OK means user already exists
+    * CREATE means user was created
+    * */
+    @PostMapping("/signin")
+    public ResponseEntity<Boolean> signin(@RequestBody MinesweeperGameLogin minesweeperGameLogin) {
+        HttpStatus httpStatus;
+        Boolean success = false;
+        try {
+            success =  minesweeperRestService.signIn(minesweeperGameLogin);
+            httpStatus = success ? HttpStatus.OK : HttpStatus.CREATED;
+        }
+        catch (IllegalArgumentException | SQLException iae) {
             httpStatus = HttpStatus.BAD_REQUEST;
         }
         return new ResponseEntity<>(success, httpStatus);

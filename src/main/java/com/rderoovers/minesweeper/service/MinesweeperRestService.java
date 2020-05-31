@@ -17,7 +17,7 @@ public class MinesweeperRestService {
     //@Autowired
     private MinesweeperDAO minesweeperDAO = new MinesweeperDAO();
 
-    private List<Integer> calculateNeighborsPositions(MinesweeperSquare square, GameSettings gameSettings) {
+    private List<Integer> calculateNeighborsPositions(MinesweeperSquare square, MinesweeperGameSettings gameSettings) {
         int colCount = gameSettings.getColumnCount();
         List<Pair<Integer, Integer>> neighborsPositions = new ArrayList<>();
         int row = square.getRow();
@@ -73,7 +73,7 @@ public class MinesweeperRestService {
         }
     }
 
-    private MinesweeperSquare[][] createSquares(GameSettings gameSettings) {
+    private MinesweeperSquare[][] createSquares(MinesweeperGameSettings gameSettings) {
         MinesweeperSquare[][] squares = new MinesweeperSquare[gameSettings.getRowCount()][gameSettings.getColumnCount()];
         int index = 0;
         for (int row = 0; row < gameSettings.getRowCount(); row++) {
@@ -88,7 +88,7 @@ public class MinesweeperRestService {
         return squares;
     }
 
-    public MinesweeperGameDTO createGame(GameSettings gameSettings) throws IllegalArgumentException {
+    public MinesweeperGameDTO createGame(MinesweeperGameSettings gameSettings) throws IllegalArgumentException {
         if (gameSettings.getRowCount() < 0) throw new IllegalArgumentException("Invalid number of rows.");
         if (gameSettings.getColumnCount() < 0) throw new IllegalArgumentException("Invalid number of columns.");
         if (gameSettings.getMineCount() < 1) throw new IllegalArgumentException("Invalid number of mines.");
@@ -145,6 +145,7 @@ public class MinesweeperRestService {
             throw new IllegalStateException("Game is finished, no further operations are allowed.");
         }
         int index = minesweeperGameUpdate.getSquare();
+        minesweeperGameDBO.setPlayTime(minesweeperGameUpdate.getTime());
         MinesweeperGame minesweeperGame = new MinesweeperGame(minesweeperGameDBO);
         minesweeperGame.flagSquare(index);
         minesweeperDAO.saveGame(minesweeperGame);
@@ -161,5 +162,25 @@ public class MinesweeperRestService {
 
     public boolean deleteGame(Long id) throws SQLException {
         return minesweeperDAO.deleteGame(id);
+    }
+
+    public Boolean signIn(MinesweeperGameLogin minesweeperGameLogin) throws SQLException {
+        if (minesweeperGameLogin.getUser().length() < 4) throw new IllegalArgumentException("Invalid user name.");
+        if (minesweeperGameLogin.getPassword().length() < 4) throw new IllegalArgumentException("Invalid user password.");
+
+        MinesweeperGameLogin dbUser = minesweeperDAO.getUser(minesweeperGameLogin);
+        if (dbUser.getId() == 0) {
+            // user does not exist
+            minesweeperDAO.createUser(minesweeperGameLogin);
+            return false;
+        }
+        else {
+            // user exists, check password
+            if (!dbUser.getPassword().equals(minesweeperGameLogin.getPassword())) {
+                throw new SecurityException();
+            }
+            minesweeperGameLogin.setId(dbUser.getId());
+            return true;
+        }
     }
 }

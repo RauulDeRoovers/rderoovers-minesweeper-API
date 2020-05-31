@@ -1,6 +1,6 @@
 package com.rderoovers.minesweeper.domain;
 
-public class GameSettings {
+public class MinesweeperGameSettings extends MinesweeperGameRequest {
 
     private int rowCount;
     private int columnCount;
@@ -29,4 +29,5 @@ public class GameSettings {
     public void setMineCount(int mineCount) {
         this.mineCount = mineCount;
     }
+
 }

@@ -3,6 +3,7 @@ package com.rderoovers.minesweeper.database;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rderoovers.minesweeper.domain.MinesweeperGameDBO;
+import com.rderoovers.minesweeper.domain.MinesweeperGameLogin;
 
 import java.net.URISyntaxException;
 import java.sql.*;
@@ -123,5 +124,37 @@ public class MinesweeperDAO {
         int affectedRecords = preparedStatement.executeUpdate();
         connection.close();
         return affectedRecords == 1;
+    }
+
+    public MinesweeperGameLogin getUser(MinesweeperGameLogin minesweeperGameLogin) throws SQLException {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT user_id, password FROM users WHERE user _name= ?");
+        preparedStatement.setString(1, minesweeperGameLogin.getUser());
+        MinesweeperGameLogin dbLogin = new MinesweeperGameLogin();
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) {
+            long userId = rs.getLong(1);
+            String password = rs.getString(2);
+            dbLogin.setId(userId);
+            dbLogin.setPassword(password);
+        }
+        connection.close();
+        return dbLogin;
+    }
+
+    public void createUser(MinesweeperGameLogin minesweeperGameLogin) throws SQLException {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO USERS (user_name, password) VALUES (?,?) RETURNING user_id");
+        preparedStatement.setString(1, minesweeperGameLogin.getUser());
+        preparedStatement.setString(2, minesweeperGameLogin.getPassword());
+        ResultSet rs = preparedStatement.executeQuery();
+        try {
+            rs.next();
+            long userId = rs.getLong(1);
+            minesweeperGameLogin.setId(userId);
+        }
+        catch (Exception e) {
+            throw new SQLException("Creating user failed, no ID obtained.");
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.rderoovers.minesweeper.domain;
 
-public class MinesweeperGameUpdate {
+public class MinesweeperGameUpdate extends MinesweeperGameRequest {
 
     private final long id;
     private final int square;
