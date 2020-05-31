@@ -9,21 +9,35 @@ var minesweeperService = function($http) {
 			//return $http.post('http://localhost:8080/create', data);
 			return $http.post('https://minesweeper-rest-service.herokuapp.com/create', data);
 		},
-		updateGame: function(id, index) {
+		clickSquare: function(game, index) {
 			let data = JSON.stringify({
-				id: id,
+				id: game.id,
+				time: game.playTime,
 				square: index
 			});
 			//return $http.patch('http://localhost:8080/update', data);
 			return $http.patch('https://minesweeper-rest-service.herokuapp.com/update', data);
 		},
-		flagSquare: function(id, index) {
+		flagSquare: function(game, index) {
 			let data = JSON.stringify({
-				id: id,
+				id: game.id,
+				time: game.playTime,
 				square: index
 			});
 			//return $http.patch('http://localhost:8080/flag', data);
 			return $http.patch('https://minesweeper-rest-service.herokuapp.com/flag', data);
+		},
+		loadGame: function(id) {
+			//return $http.get('http://localhost:8080/get?id='+ id);
+			return $http.get('https://minesweeper-rest-service.herokuapp.com/get?id='+ id);
+		},
+		loadAllGames: function() {
+			//return $http.get('http://localhost:8080/get');
+			return $http.get('https://minesweeper-rest-service.herokuapp.com/get');
+		},
+		deleteGame: function(id) {
+			//return $http.delete('http://localhost:8080/delete?id=' + id);
+			return $http.delete('https://minesweeper-rest-service.herokuapp.com/delete?id=' + id);
 		}
 	}
 };
