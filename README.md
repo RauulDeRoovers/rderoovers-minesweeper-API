@@ -38,9 +38,13 @@ Response Statuses:
 
 ### @PatchMapping("/flag")
 Receives the game id for the game that has suffered a change (cell flagged) and an index specifying which cell was flagged.
+
 Request format: { id: (long: game's id), index: (int: flagged cell's index) }
+
 If cell is already revealed, nothing is changed. If cell has not been revealed, it is flagged, further clicks are ignored. Cell can be unflagged (by player) or revealed if holds no mine and a neighbor with no mine was revealed.
+
 Returns the modified game instance with updated flags.
+
 Response Statuses:
  - HttpStatus.OK: if square flagging was successful or no action was
    needed.
@@ -51,21 +55,30 @@ Response Statuses:
 
 ### @GetMapping("/get")
 Optionally, receives the game id for the game that wants to be retrieved.
+
 Request format: { id: (long: game's id) }
+
 If id is provided and game exists, it returns the game found as the only element in the list. If no id is provided, all existing games are retrieved.
+
 Response Statuses:
  - HttpStatus.OK: requested game or all games where found and retrieved.
  - HttpStatus.BAD_REQUEST: requested game was not found or has a wrong format (JSON format in DB), or any of the existing games have wrong formats (JSON format in DB).
+ 
 ### @DeleteMapping("/delete")
 Receives the game id for the game that wants to be deleted.
+
 Request format: { id: (long: game's id) }
+
 Response Statuses:
  - HttpStatus.OK: game was found and deleted.
  - HttpStatus.INTERNAL_SERVER_ERROR: an internal error happened while trying to delete the game.
  - HttpStatus.BAD_REQUEST: game was not found.
+
 ### @PostMapping("/signin")
 Receives the game id for the game that wants to be deleted.
+
 Request format: { user: (string: user's name), password: (string: user's password) }
+
 Response Statuses:
  - HttpStatus.OK: user already exists and has been successfully signed in.
  - HttpStatus.CREATED: user does not exist but was successfully created.
@@ -73,7 +86,7 @@ Response Statuses:
 
 Within MinesweeperRestController, the following field should be injected through Bean:
  - //@Autowired
- private final MinesweeperRestService minesweeperRestService;
+ - private final MinesweeperRestService minesweeperRestService;
 
 ## Implement an API client library for the API designed above. Ideally, in a different language, of your preference, to the one used for the API
 
@@ -125,7 +138,7 @@ Games are stored in JSON format:
 Within MinesweeperRestService, the following field should be injected through Bean:
 
  - //@Autowired
-	private MinesweeperDAO minesweeperDAO;
+ - private MinesweeperDAO minesweeperDAO;
 
 Within MinesweeperDAO, there are pending enhancements to reduce the amount of repeated code when running statements against DB.
 Besides, we would need to ensure connections are properly closed even in an exception is throw within the method.
