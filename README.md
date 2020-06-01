@@ -3,6 +3,7 @@
 ## Design and implement a documented RESTful API for the game (think of a mobile app for your API)
 ### @PostMapping("/create")
 Receives the amount of rows, columns and mines the game should handle.
+
 Request format: { rowCount: (integer: amount of rows wanted), columnCount: (integer: amount of columns wanted), mineCount: (integer: amount of mines wanted) }
 Returns a JSON Object with the following structure: 
     * victory: false, since the game is new, and it is just beginning
