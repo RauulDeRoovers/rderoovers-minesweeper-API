@@ -149,11 +149,11 @@ public class MinesweeperRestController {
         Boolean success = false;
         try {
             success = minesweeperRestService.deleteGame(id);
-            httpStatus = success ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+            httpStatus = success ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         }
         catch (Exception e) {
             e.printStackTrace();
-            httpStatus = HttpStatus.BAD_REQUEST;
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return new ResponseEntity<>(success, httpStatus);
     }
