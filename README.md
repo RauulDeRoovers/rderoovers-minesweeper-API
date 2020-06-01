@@ -142,6 +142,7 @@ Within MinesweeperRestService, the following field should be injected through Be
 
 Within MinesweeperDAO, there are pending enhancements to reduce the amount of repeated code when running statements against DB.
 Besides, we would need to ensure connections are properly closed even in an exception is throw within the method.
+Finally, we need to take database connection parameters out of the code.
 
 ## Time tracking
 Timer does not start until user clicks a cell. Once a cell is clicked and response is received, timer is started (if game is not over).
