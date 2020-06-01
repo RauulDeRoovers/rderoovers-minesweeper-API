@@ -1,8 +1,3 @@
-
-
-
-
-
 # rderoovers-minesweeper-API
 
 ## Design and implement a documented RESTful API for the game (think of a mobile app for your API)
@@ -70,7 +65,7 @@ Response Statuses:
 
 Within MinesweeperRestController, the following field should be injected through Bean:
  - //@Autowired
-	private final MinesweeperRestService minesweeperRestService;
+ private final MinesweeperRestService minesweeperRestService;
 
 ## Implement an API client library for the API designed above. Ideally, in a different language, of your preference, to the one used for the API
 
@@ -138,12 +133,13 @@ User can resume existing non-finished games as well as delete existing games (ei
 
 ## Ability to select the game parameters: number of rows, columns, and mines
 
-Through endpoitn *@PostMapping("/create")* (or API client library's method *createNewGame: function(rows, cols, mines)*), user can create a new game with specified parameters.
+Through endpoint *@PostMapping("/create")* (or API client library's method *createNewGame: function(rows, cols, mines)*), user can create a new game with specified parameters.
 
 Server checks for the validity of the parameters, such as all being > 0 and number of mines being lower than the total available squares.
 
 ## Ability to support multiple users/accounts
 **Not fully implemented.**
+
 The idea was to use the USERS table and keep it simple by signing in users even if they don't exist.
 
 Through endpoint *@PostMapping("/signin")* (or API client library's method *signIn: function(user)*), we should be able to do so. It will only fail if the user exists but the password does not match the one in the DB.
