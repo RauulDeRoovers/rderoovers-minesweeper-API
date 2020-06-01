@@ -5,30 +5,37 @@
 Receives the amount of rows, columns and mines the game should handle.
 
 Request format: { rowCount: (integer: amount of rows wanted), columnCount: (integer: amount of columns wanted), mineCount: (integer: amount of mines wanted) }
+
 Returns a JSON Object with the following structure: 
-    * victory: false, since the game is new, and it is just beginning
-    * finished: false, since the game is new, and it is just beginning
-    * rowCount: the amount of rows requested
-    * columnCount: the amount of columns requested
-    * id: the game's id for further reference, should be used every time the game's status changes (a cell is clicked)
-    * mineCount: the amount of mines the game has.
-    * playTime: the time the player has spent on this game, so far.
-    * squares: an array of arrays, with objects having following structure:
-        * index: square index in the game's grid
-        * type: UNKNOWN, MINE, SAFE, FLAGGED
+ - victory: false, since the game is new, and it is just beginning
+ - finished: false, since the game is new, and it is just beginning
+ - rowCount: the amount of rows requested
+ - columnCount: the amount of columns requested
+ - id: the game's id for further reference, should be used every time the game's status changes (a cell is clicked)
+ - mineCount: the amount of mines the game has.
+ - playTime: the time the player has spent on this game, so far.
+ - squares: an array of arrays, with objects having following structure:
+	 - index: square index in the game's grid
+	 - type: UNKNOWN, MINE, SAFE, FLAGGED
+
 Response Statuses:
-    * HttpStatus.OK: if game was successfully created.
-    * HttpStatus.BAD_REQUEST: invalid number of rows, columns or mines (includes checking at least 1 square is empty).
+ - HttpStatus.OK: if game was successfully created.
+ - HttpStatus.BAD_REQUEST: invalid number of rows, columns or mines (includes checking at least 1 square is empty).
+ 
 ### @PatchMapping("/update")
 Receives the game id for the game that has suffered a change (cell clicked) and an index specifying which cell was clicked.
+
 Request format: { id: (long: game's id), index: (int: selected cell's index) }
+
 Returns the modified game instance with updated flags.
+
 Response Statuses:
 
  - HttpStatus.OK: if game was successfully updated.
  - HttpStatus.METHOD_NOT_ALLOWED: if the game has already finished.
  - HttpStatus.BAD_REQUEST: if id or index provided to identify either
    game or square are wrong.
+
 ### @PatchMapping("/flag")
 Receives the game id for the game that has suffered a change (cell flagged) and an index specifying which cell was flagged.
 Request format: { id: (long: game's id), index: (int: flagged cell's index) }
